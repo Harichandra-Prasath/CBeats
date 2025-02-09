@@ -1,0 +1,3 @@
+# CBeats
+
+Simple Log Aggregator
