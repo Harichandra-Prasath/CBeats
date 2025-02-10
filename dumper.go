@@ -10,12 +10,13 @@ import (
 
 type Dumper struct {
 	tcpConn *net.TCPConn
+	Batch   int
 }
 
 // Creates a New Dumper
-func NewDumper() (*Dumper, error) {
+func NewDumper(port string) (*Dumper, error) {
 
-	raddr, err := net.ResolveTCPAddr("tcp", "localhost:"+SNK_PORT)
+	raddr, err := net.ResolveTCPAddr("tcp", "localhost:"+port)
 	if err != nil {
 		return nil, fmt.Errorf("creating dumper: %s", err)
 
@@ -29,6 +30,7 @@ func NewDumper() (*Dumper, error) {
 
 	dumper := &Dumper{
 		tcpConn: newConn,
+		Batch:   0,
 	}
 
 	return dumper, nil
@@ -42,7 +44,7 @@ func (d *Dumper) dumpLogs(logs *Logs) error {
 		return fmt.Errorf("dumping logs: %s", err)
 	}
 
-	log.Printf("Logs of batch %d dumped successfully", logs.batch)
+	log.Printf("Logs of batch %d dumped successfully", d.Batch)
 
 	return nil
 }

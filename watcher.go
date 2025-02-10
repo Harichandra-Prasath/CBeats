@@ -5,21 +5,19 @@ package main
 import (
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/fsnotify/fsnotify"
 )
 
-type WatcherConfig struct {
-	Dir string
-}
-
 type Watcher struct {
-	cfg       WatcherConfig
 	FSWatcher *fsnotify.Watcher
+	EventChan chan string
+	WatchDir  string
 }
 
 // Creates a new watcher with given config
-func NewWatcher(cfg WatcherConfig) (*Watcher, error) {
+func NewWatcher(dir string, eChan chan string) (*Watcher, error) {
 	watcher := Watcher{}
 
 	fswatcher, err := fsnotify.NewWatcher()
@@ -27,18 +25,22 @@ func NewWatcher(cfg WatcherConfig) (*Watcher, error) {
 		return nil, fmt.Errorf("creating watcher: %s", err)
 	}
 
-	err = fswatcher.Add(cfg.Dir)
+	err = fswatcher.Add(dir)
 	if err != nil {
 		return nil, fmt.Errorf("creating watcher: %s", err)
 	}
 
 	watcher.FSWatcher = fswatcher
-	watcher.cfg = cfg
+	watcher.EventChan = eChan
+	watcher.WatchDir = dir
 
 	return &watcher, nil
 }
 
 func (w *Watcher) Listen() {
+
+	log.Println("Watcher Started for " + w.WatchDir)
+
 	for {
 
 		select {
@@ -52,6 +54,10 @@ func (w *Watcher) Listen() {
 			if event.Has(fsnotify.Write) {
 				log.Println("New Write on " + event.Name)
 			}
+
+			// TODO: Should be cached, instead of splitting for every event
+			parts := strings.Split(event.Name, "/")
+			w.EventChan <- parts[len(parts)-1]
 
 		case err, ok := <-w.FSWatcher.Errors:
 			if !ok {
