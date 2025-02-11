@@ -5,7 +5,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"strings"
 
 	"github.com/fsnotify/fsnotify"
 )
@@ -55,9 +54,7 @@ func (w *Watcher) Listen() {
 				log.Println("New Write on " + event.Name)
 			}
 
-			// TODO: Should be cached, instead of splitting for every event
-			parts := strings.Split(event.Name, "/")
-			w.EventChan <- parts[len(parts)-1]
+			w.EventChan <- event.Name
 
 		case err, ok := <-w.FSWatcher.Errors:
 			if !ok {

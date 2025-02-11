@@ -8,11 +8,12 @@ import (
 )
 
 type Logs struct {
-	data *[]byte
+	data  *[]byte
+	batch int
+	file  string
 }
 
 type HarvesterConfig struct {
-	SnkPort  string
 	ReadTime int
 	ReadDir  string
 }
@@ -25,7 +26,7 @@ type Harvester struct {
 	DumpChan  chan *Logs
 }
 
-func NewHarvester(cfg HarvesterConfig) (*Harvester, error) {
+func NewHarvester(cfg HarvesterConfig, dumper *Dumper) (*Harvester, error) {
 
 	// Check the validity of the dir
 	files, err := os.ReadDir(cfg.ReadDir)
@@ -38,6 +39,7 @@ func NewHarvester(cfg HarvesterConfig) (*Harvester, error) {
 	harvester.EventChan = make(chan string)
 	harvester.DumpChan = make(chan *Logs)
 	harvester.ReaderMap = make(map[string]*Reader)
+	harvester.Dumper = dumper
 
 	for _, entry := range files {
 		if !entry.IsDir() {
@@ -46,23 +48,19 @@ func NewHarvester(cfg HarvesterConfig) (*Harvester, error) {
 			parts := strings.Split(entry.Name(), ".")
 			if parts[len(parts)-1] == "log" {
 
-				reader, err := NewReader(cfg.ReadDir+entry.Name(), cfg.ReadTime, harvester.DumpChan)
+				fullPath := cfg.ReadDir + entry.Name()
+
+				reader, err := NewReader(fullPath, cfg.ReadTime, harvester.DumpChan)
 				if err != nil {
-					log.Println("Error creating Reader for " + entry.Name() + ": " + err.Error())
+					log.Println("Error creating Reader for " + fullPath + ": " + err.Error())
 				}
 
-				harvester.ReaderMap[entry.Name()] = reader
+				harvester.ReaderMap[fullPath] = reader
 			}
 		}
 	}
 
 	harvester.Listener, err = NewWatcher(cfg.ReadDir, harvester.EventChan)
-	if err != nil {
-		return nil, fmt.Errorf("creating harvester: %s", err)
-
-	}
-
-	harvester.Dumper, err = NewDumper(cfg.SnkPort)
 	if err != nil {
 		return nil, fmt.Errorf("creating harvester: %s", err)
 

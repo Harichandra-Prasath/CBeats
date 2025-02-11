@@ -15,6 +15,7 @@ type Reader struct {
 	Active     bool
 	ReadTime   int
 	DumpChan   chan *Logs
+	Batch      int
 }
 
 func NewReader(fp string, rd int, dchan chan *Logs) (*Reader, error) {
@@ -56,9 +57,12 @@ func (r *Reader) Read() {
 			r.Offset, _ = r.File.Seek(0, 1)
 
 			r.DumpChan <- &Logs{
-				data: &logs,
+				data:  &logs,
+				batch: r.Batch,
+				file:  r.File.Name(),
 			}
 			r.Active = false
+			r.Batch += 1
 		}
 
 	}

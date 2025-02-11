@@ -5,7 +5,6 @@ import (
 	"os"
 	"testing"
 	"time"
-	// "time"
 )
 
 func TestDumper(t *testing.T) {
@@ -17,7 +16,9 @@ func TestDumper(t *testing.T) {
 
 	sample_data := []byte("Foo Completed\nBar Completed\n")
 	sample_logs := Logs{
-		data: &sample_data,
+		data:  &sample_data,
+		file:  "test_file",
+		batch: 0,
 	}
 
 	dumper.dumpLogs(&sample_logs)
@@ -124,11 +125,16 @@ func TestHarvester(t *testing.T) {
 
 	}
 
+	dumper, err := NewDumper("8989")
+	if err != nil {
+
+		t.Fatal(err)
+	}
+
 	harvester, err := NewHarvester(HarvesterConfig{
 		ReadDir:  tmp + "/",
 		ReadTime: 5,
-		SnkPort:  "8989",
-	})
+	}, dumper)
 
 	if err != nil {
 		t.Fatal(err)
@@ -147,6 +153,6 @@ func TestHarvester(t *testing.T) {
 
 	fp.Close()
 
-	for {
-	}
+	time.Sleep(5 * time.Second)
+
 }

@@ -9,8 +9,7 @@ import (
 )
 
 type Dumper struct {
-	tcpConn *net.TCPConn
-	Batch   int
+	TcpConn *net.TCPConn
 }
 
 // Creates a New Dumper
@@ -29,8 +28,7 @@ func NewDumper(port string) (*Dumper, error) {
 	}
 
 	dumper := &Dumper{
-		tcpConn: newConn,
-		Batch:   0,
+		TcpConn: newConn,
 	}
 
 	return dumper, nil
@@ -39,12 +37,12 @@ func NewDumper(port string) (*Dumper, error) {
 // Core function that dumps all the logs
 func (d *Dumper) dumpLogs(logs *Logs) error {
 
-	_, err := d.tcpConn.Write(*logs.data)
+	_, err := d.TcpConn.Write(*logs.data)
 	if err != nil {
 		return fmt.Errorf("dumping logs: %s", err)
 	}
 
-	log.Printf("Logs of batch %d dumped successfully", d.Batch)
+	log.Printf("Logs of batch %d dumped successfully for %s ", logs.batch, logs.file)
 
 	return nil
 }
