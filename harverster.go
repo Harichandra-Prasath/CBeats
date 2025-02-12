@@ -46,7 +46,7 @@ func NewHarvester(cfg HarvesterConfig, dumper *Dumper) (*Harvester, error) {
 
 			// Look for the log files
 			parts := strings.Split(entry.Name(), ".")
-			if parts[len(parts)-1] == "log" {
+			if parts[len(parts)-1] == "log" || parts[len(parts)-1] == "logs" {
 
 				fullPath := cfg.ReadDir + entry.Name()
 

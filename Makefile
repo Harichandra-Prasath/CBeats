@@ -1,5 +1,5 @@
 run: build
-	@./bin/CBeats
+	@./bin/CBeats $(ARGS)
 
 build:
 	@go build -o ./bin/CBeats
