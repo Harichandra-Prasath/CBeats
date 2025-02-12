@@ -12,7 +12,7 @@ type Config struct {
 	Dirs []string
 }
 
-var ALLOWED_DIRECTIVES = map[string]struct{}{"DIRS": struct{}{}, "PORT": struct{}{}, "READ_TIME": struct{}{}}
+var ALLOWED_DIRECTIVES = map[string]struct{}{"DIRS": struct{}{}, "PORT": struct{}{}, "READ_TIME": struct{}{}, "CONTAINERS": struct{}{}}
 
 func ParseConfig(path string) (*Config, error) {
 
@@ -76,6 +76,10 @@ func ParseConfig(path string) (*Config, error) {
 		case "READ_TIME":
 			t, _ := strconv.Atoi(parts[1])
 			READ_TIME = t
+		case "CONTAINERS":
+			if parts[1] == "True" || parts[1] == "true" {
+				CONTAINERS = true
+			}
 		}
 
 	}

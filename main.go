@@ -4,9 +4,6 @@ import (
 	"flag"
 )
 
-var SNK_PORT = "8989"
-var READ_TIME = 5
-
 func main() {
 
 	var harvesters []*Harvester
@@ -39,6 +36,32 @@ func main() {
 		}
 
 		harvesters = append(harvesters, newHarvester)
+	}
+
+	if CONTAINERS {
+
+		// Create the Client
+		dockerClient, err := NewDockerClient()
+		if err != nil {
+			panic(err)
+		}
+
+		containers, err := dockerClient.FetchContainerIDs()
+		if err != nil {
+			panic(err)
+		}
+
+		for _, container := range containers {
+			newHarvester, err := NewHarvester(HarvesterConfig{
+				ReadDir:  CONTAINER_LOGS_PATH + container.ContainerId + "/",
+				ReadTime: READ_TIME,
+			}, globalDumper)
+			if err != nil {
+				panic(err)
+			}
+
+			harvesters = append(harvesters, newHarvester)
+		}
 	}
 
 	for _, harvester := range harvesters {
