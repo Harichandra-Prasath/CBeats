@@ -26,7 +26,9 @@ func NewReader(fp string, rd int, dchan chan *Logs) (*Reader, error) {
 
 	}
 
-	return &Reader{Offset: 0, File: f, NotifyChan: make(chan struct{}), Active: false, ReadTime: rd, DumpChan: dchan}, nil
+	offset, _ := f.Seek(0, 2)
+
+	return &Reader{Offset: offset, File: f, NotifyChan: make(chan struct{}), Active: false, ReadTime: rd, DumpChan: dchan}, nil
 }
 
 func (r *Reader) Read() {

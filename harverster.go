@@ -82,12 +82,14 @@ func (h *Harvester) Start() {
 		select {
 
 		case f := <-h.EventChan:
+			log.Println("Recieved Write Event for " + f)
 			reader, ok := h.ReaderMap[f]
 			if ok && !reader.Active {
 				reader.NotifyChan <- struct{}{}
 			}
 
 		case logs := <-h.DumpChan:
+			log.Println("Recieved Dump Event for " + logs.file)
 			err := h.Dumper.dumpLogs(logs)
 			if err != nil {
 				log.Printf("Error in dumping logs: %s", err)
