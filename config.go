@@ -12,8 +12,6 @@ type Config struct {
 	Dirs []string
 }
 
-var ALLOWED_DIRECTIVES = map[string]struct{}{"DIRS": struct{}{}, "PORT": struct{}{}, "READ_TIME": struct{}{}, "CONTAINERS": struct{}{}}
-
 func ParseConfig(path string) (*Config, error) {
 
 	parts := strings.Split(path, ".")
@@ -62,7 +60,7 @@ func ParseConfig(path string) (*Config, error) {
 			return nil, fmt.Errorf("parsing config: invalid line structure ")
 		}
 
-		if _, ok := ALLOWED_DIRECTIVES[parts[0]]; !ok {
+		if ok := isAllowed(parts[0]); !ok {
 			return nil, fmt.Errorf("parsing config: invalid directive mentioned %s", parts[0])
 		}
 
@@ -80,6 +78,9 @@ func ParseConfig(path string) (*Config, error) {
 			if parts[1] == "True" || parts[1] == "true" {
 				CONTAINERS = true
 			}
+		case "DOCKER_SOCK":
+			DOCKER_SOCK = parts[1]
+
 		}
 
 	}

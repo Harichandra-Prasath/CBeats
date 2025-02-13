@@ -19,7 +19,7 @@ type DockerClient struct {
 
 func NewDockerClient() (*DockerClient, error) {
 
-	conn, err := net.Dial("unix", "/var/run/docker.sock")
+	conn, err := net.Dial("unix", DOCKER_SOCK)
 	if err != nil {
 		return nil, fmt.Errorf("creating dockerclient: %s", err)
 
