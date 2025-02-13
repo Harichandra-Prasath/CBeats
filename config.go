@@ -60,7 +60,7 @@ func ParseConfig(path string) (*Config, error) {
 			return nil, fmt.Errorf("parsing config: invalid line structure ")
 		}
 
-		if ok := isAllowed(parts[0]); !ok {
+		if ok := isIncluded(parts[0], ALLOWED_DIRECTIVES); !ok {
 			return nil, fmt.Errorf("parsing config: invalid directive mentioned %s", parts[0])
 		}
 
@@ -74,12 +74,15 @@ func ParseConfig(path string) (*Config, error) {
 		case "READ_TIME":
 			t, _ := strconv.Atoi(parts[1])
 			READ_TIME = t
-		case "CONTAINERS":
+		case "DOCKER":
 			if parts[1] == "True" || parts[1] == "true" {
 				CONTAINERS = true
 			}
 		case "DOCKER_SOCK":
 			DOCKER_SOCK = parts[1]
+		case "CONTAINERS_LIST":
+
+			CONTAINERS_LIST = parts[1]
 
 		}
 

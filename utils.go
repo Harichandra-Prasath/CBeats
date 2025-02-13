@@ -1,9 +1,9 @@
 package main
 
-func isAllowed(directive string) bool {
+func isIncluded(target string, list []string) bool {
 
-	for _, _directive := range ALLOWED_DIRECTIVES {
-		if directive == _directive {
+	for _, el := range list {
+		if target == el {
 			return true
 		}
 

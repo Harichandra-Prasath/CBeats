@@ -7,10 +7,12 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"strings"
 )
 
 type Container struct {
-	ContainerId string `json:"Id"`
+	ContainerId string   `json:"Id"`
+	Names       []string `json:"Names"`
 }
 
 type DockerClient struct {
@@ -54,13 +56,31 @@ func (d *DockerClient) FetchContainerIDs() ([]Container, error) {
 
 	}
 
-	var containers []Container
+	var allContainers []Container
 
-	err = json.Unmarshal(raw_data, &containers)
+	err = json.Unmarshal(raw_data, &allContainers)
 	if err != nil {
 		return nil, fmt.Errorf("fetching containers: %s", err)
 	}
 
-	return containers, nil
+	if CONTAINERS_LIST == "*" {
+		return allContainers, nil
+	}
 
+	var requestedContainers []Container
+	containerNames := strings.Split(CONTAINERS_LIST, ",")
+
+	for _, container := range allContainers {
+		for _, name := range container.Names {
+
+			name = strings.TrimPrefix(name, "/")
+			if isIncluded(name, containerNames) {
+
+				requestedContainers = append(requestedContainers, container)
+			}
+
+		}
+	}
+
+	return requestedContainers, nil
 }
